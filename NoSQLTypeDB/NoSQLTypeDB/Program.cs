@@ -1,8 +1,13 @@
+using Core.Options;
+using DAL.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.Configure<DatabaseSettings>(
+    builder.Configuration.GetSection("StoreDatabase"));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
