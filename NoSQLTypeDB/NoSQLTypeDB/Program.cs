@@ -1,5 +1,6 @@
 using Core.Options;
 using DAL.Interfaces;
+using DAL.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,8 +1,236 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@using Newtonsoft.Json
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Database</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+            .buttons button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                border: none;
+                border-radius: 5px;
+            }
+
+                .buttons button:nth-child(1) {
+                    background-color: #2196F3;
+                    color: white;
+                }
+
+                .buttons button:nth-child(2) {
+                    background-color: #4CAF50;
+                    color: white;
+                }
+
+        .json-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .json-item {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .json-content {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .json-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+            .json-actions button {
+                padding: 5px 10px;
+                font-size: 14px;
+                cursor: pointer;
+                border: none;
+                border-radius: 5px;
+            }
+
+                .json-actions button:nth-child(1) {
+                    background-color: #FFC107;
+                    color: white;
+                }
+
+                .json-actions button:nth-child(2) {
+                    background-color: #F44336;
+                    color: white;
+                }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            width: 25%;
+            height: 25%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+        }
+
+            .modal-content input[type="text"] {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .modal-content button {
+                padding: 10px;
+                font-size: 16px;
+                cursor: pointer;
+                border: none;
+                border-radius: 5px;
+            }
+
+                .modal-content button.confirm {
+                    background-color: #4CAF50;
+                    color: white;
+                }
+
+                .modal-content button.cancel {
+                    background-color: #F44336;
+                    color: white;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="buttons">
+            <button id="jsonBtn">JSON</button>
+            <button id="addBtn">Add</button>
+        </div>
+        <div class="json-container">
+            @foreach (var document in Model)
+            {
+                var jsonString = JsonConvert.SerializeObject(document, Formatting.Indented);
+                <div class="json-item">
+                    <div class="json-content">
+                        <pre>@Html.Raw(jsonString)</pre>
+                    </div>
+                    <div class="json-actions">
+                        <button>Update</button>
+                        <button>Delete</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <form id="modalForm">
+                <label for="fieldText">Field Text:</label>
+                <input type="text" id="fieldText" name="fieldText" required>
+                <div>
+                    <button type="button" class="confirm" id="confirmBtn">Confirm</button>
+                    <button type="button" class="cancel" id="cancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // Get modal elements
+        const modal = document.getElementById('modal');
+        const addBtn = document.getElementById('addBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        // Show modal
+        addBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        // Hide modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Hide modal when clicking cancel
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Handle confirm button click
+        confirmBtn.addEventListener('click', () => {
+            const fieldText = document.getElementById('fieldText').value;
+            if (fieldText) {
+                // Convert the fieldText to JSON
+                const jsonObject = { fieldText: fieldText };
+
+                // Send the JSON to the server
+                fetch('/Home/AddDocument', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonObject)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Something went wrong');
+                        }
+                    })
+                    .then(data => {
+                        console.log('Success:', data);
+                        modal.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
+    </script>
+
+</body>
+</html>

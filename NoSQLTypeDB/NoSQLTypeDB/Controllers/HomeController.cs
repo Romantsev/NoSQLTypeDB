@@ -1,32 +1,37 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NoSQLTypeDB.Models;
-using System.Diagnostics;
+using System.Collections.Generic;
 
-namespace NoSQLTypeDB.Controllers
+namespace YourNamespace.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
-            return View();
+            var documents = new List<object>
+            {
+                new { Id = 1, Field = "asdsa", Weight = 50 },
+                new { Id = 2, Sex = "male" },
+                new { Id = 3, Name = "John Doe", Age = 30, Active = true }
+            };
+
+            return View(documents);
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        public IActionResult AddDocument([FromBody] DocumentModel document)
         {
-            return View();
-        }
+            if (ModelState.IsValid)
+            {
+                // Обробка документа
+                return Json(new { success = true, field = document.FieldText, message = "Document added successfully" });
+            }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return BadRequest(new { success = false, message = "Invalid data" });
         }
     }
+    public class DocumentModel
+    {
+        public string FieldText { get; set; }
+    }
+
 }
