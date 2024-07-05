@@ -1,3 +1,4 @@
+using BLL.Services;
 using Core.Options;
 using DAL.Interfaces;
 using DAL.Repositories;
@@ -9,6 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("StoreDatabase"));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<DocumentService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
