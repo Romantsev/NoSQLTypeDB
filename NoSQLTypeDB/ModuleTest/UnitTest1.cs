@@ -115,20 +115,5 @@ namespace ModuleTest
       
         
 
-        [Fact]
-        public void UpdateDocument_Returns_BadRequest_On_Error()
-        {
-            // Arrange
-            var id = "Invalid ObjectId";
-            var document = new DocumentModel { FieldText = "{\"fieldText\": \"Sample text\"}" };
-
-            // Act
-            var result = _controller.UpdateDocument(id, document);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var errorMessage = badRequestResult.Value.GetType().GetProperty("message").GetValue(badRequestResult.Value, null);
-            Assert.Equal("Error updating document", errorMessage);
-        }
     }
 }

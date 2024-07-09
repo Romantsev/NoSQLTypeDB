@@ -3,7 +3,7 @@ using BLL.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace YourNamespace.Controllers;
+namespace NoSQLTypeDB.Controllers;
 
 public class HomeController : Controller
 {
